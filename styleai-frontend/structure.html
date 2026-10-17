@@ -9,7 +9,7 @@
   <link rel="icon" type="image/jpeg" href="photos/favicon2.jpeg">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="Sundar.css" />
+  <link rel="stylesheet" href="Sundar.css?v=3" />
 
   <!-- Font Awesome -->
   <link rel="stylesheet"
@@ -118,6 +118,19 @@
     </select>
   </div>
 
+  <!-- Occasion -->
+  <div class="occasion-selection">
+    <label for="occasion-select">Select Occasion:</label>
+    <select id="occasion-select" name="occasion" required>
+      <option value="Casual / Everyday">Casual / Everyday</option>
+      <option value="College / Campus">College / Campus</option>
+      <option value="Office / Formal">Office / Formal</option>
+      <option value="Date Night">Date Night</option>
+      <option value="Party / Night Out">Party / Night Out</option>
+      <option value="Wedding / Festive">Wedding / Festive</option>
+    </select>
+  </div>
+
   <!-- Age -->
   <div class="age-box">
     <label for="ageRange">Select your age:</label>
@@ -134,7 +147,7 @@
   </div>
 
   <!-- Drop Zone -->
-  <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()" style="overflow: hidden;">
+  <div class="drop-zone" id="drop-zone" style="overflow: hidden;">
 
     <!-- Hidden file input (ONLY ONE) -->
     <input
@@ -159,10 +172,10 @@
     <img
       id="preview"
       alt="Image preview"
-      style="display:none; width: 100%; height: 460px; object-fit: contain;"
+      style="display:none; width: 100%; height: 320px; object-fit: contain;"
     />
     <p id="preview-text" style="display:none; margin-top: 5px; color: #555; font-weight: 500;">
-      You have selected this photo
+      Photo selected
     </p>
   </div>
 
@@ -191,19 +204,60 @@
 
     <div id="loading" class="loading" style="display:none;">
       <div class="spinner"></div>
-      <p>Analyzing your photo... Please wait</p>
+      <p>Analyzing your photo with AI... Please wait</p>
     </div>
 
     <div id="results" class="results" style="display:none;">
       <h2>Your Personalized Style Recommendations</h2>
 
-      <div class="skin-info">
-        <p><strong>Skin Tone:</strong> <span id="skin-tone"></span></p>
-        <p><strong>RGB:</strong> <span id="rgb"></span></p>
+      <div class="skin-analysis-card">
+        <div class="skin-swatch-box">
+          <div id="skin-color-swatch" class="skin-swatch"></div>
+          <div class="skin-text">
+            <span class="analysis-label">Detected Skin Tone & Undertone</span>
+            <h3 id="skin-tone"></h3>
+            <span id="rgb-badge" class="rgb-badge"></span>
+          </div>
+        </div>
+
+        <div class="palette-box">
+          <span class="analysis-label">Flattering Color Palette</span>
+          <div id="palette-chips" class="palette-chips"></div>
+        </div>
+
+        <div class="avoid-box">
+          <span class="analysis-label">Colors to Avoid</span>
+          <div id="avoid-tags" class="avoid-tags"></div>
+        </div>
+      </div>
+
+      <!-- 3-LOOKS TAB BAR -->
+      <div class="looks-tab-container">
+        <span class="analysis-label">Curated Looks Collection (Select to Switch)</span>
+        <div class="looks-tab-bar" id="looks-tab-bar"></div>
+      </div>
+
+      <div class="outfit-header-bar">
+        <div>
+          <span class="vibe-badge" id="vibe-badge">Look 1: Minimalist Everyday</span>
+          <h3 id="outfit-name"></h3>
+        </div>
+        <div id="dress-code-badges" class="dress-code-badges"></div>
       </div>
 
       <div id="recommendations" class="recommendation-grid"></div>
-      <button id="try-again" class="btn secondary">Try Another Photo</button>
+
+      <div class="styling-tip-box" id="styling-tip-box">
+        <h4><i class="fas fa-magic"></i> Stylist's Tip</h4>
+        <p id="styling-tip-text"></p>
+      </div>
+
+      <div class="why-it-works-box">
+        <h4><i class="fas fa-lightbulb"></i> Why This Works for You</h4>
+        <p id="why-it-works-text"></p>
+      </div>
+
+      <button id="try-again" class="btn secondary" style="margin-top: 30px;">Try Another Photo</button>
     </div>
   </div>
 
@@ -323,30 +377,11 @@ This project reflects our curiosity, teamwork, and eagerness to learn by buildin
 </footer>
 
 <!-- JS -->
-<script src="logic.js"></script>
+<script src="logic.js?v=3"></script>
 <script>
   function updateAge(value) {
     document.getElementById("ageValue").innerText = value;
   }
-
-  const fileInput = document.getElementById('file-input');
-  const previewImg = document.getElementById('preview');
-  const previewText = document.getElementById('preview-text');
-  const dropContent = document.querySelector('.drop-content');
-
-  fileInput.addEventListener('change', function(event) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        previewImg.src = e.target.result;
-        previewImg.style.display = 'block';
-        previewText.style.display = 'block';
-        dropContent.style.display = 'none';
-      };
-      reader.readAsDataURL(file);
-    }
-  });
 </script>
 
 </body>
