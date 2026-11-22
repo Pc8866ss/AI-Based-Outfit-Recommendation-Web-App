@@ -9,7 +9,7 @@
   <link rel="icon" type="image/jpeg" href="photos/favicon2.jpeg">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="Sundar.css?v=3" />
+  <link rel="stylesheet" href="Sundar.css?v=9" />
 
   <!-- Font Awesome -->
   <link rel="stylesheet"
@@ -100,10 +100,29 @@
   </div>
 
 
-  <!-- ================= FORM ================= -->
-  <div class="container">
-    <h2>Upload Your Photo</h2>
-    <p class="subtitle">Let AI analyze your skin tone and suggest stunning looks</p>
+  <!-- ================= STUDIO MODE SWITCHER ================= -->
+  <div class="studio-switcher-wrap">
+    <div class="studio-mode-switcher">
+      <button type="button" class="studio-tab-btn active" id="tab-btn-stylist">
+        <i class="fas fa-magic"></i> <span>Look Stylist & Color Analysis</span>
+      </button>
+      <button type="button" class="studio-tab-btn" id="tab-btn-duel">
+        <i class="fas fa-bolt"></i> <span>A/B Fit Duel (Battle)</span>
+      </button>
+      <button type="button" class="studio-tab-btn" id="tab-btn-dupe">
+        <i class="fas fa-search-dollar"></i> <span>Celebrity & Aesthetic Dupe Finder</span>
+      </button>
+      <button type="button" class="studio-tab-btn" id="tab-btn-capsule">
+        <i class="fas fa-suitcase-rolling"></i> <span>Smart Travel Capsule</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= STYLIST SECTION ================= -->
+  <div id="stylist-section" class="studio-section">
+    <div class="container">
+      <h2>Upload Your Photo</h2>
+      <p class="subtitle">Let AI analyze your skin tone and suggest stunning looks</p>
 
     <form id="upload-form" class="upload-form" enctype="multipart/form-data">
 
@@ -129,6 +148,32 @@
       <option value="Party / Night Out">Party / Night Out</option>
       <option value="Wedding / Festive">Wedding / Festive</option>
     </select>
+  </div>
+
+  <!-- Real-Time Weather & Location -->
+  <div class="location-selection">
+    <label for="city-input">
+      <i class="fas fa-cloud-sun"></i> Your City / Climate <span class="optional-label">(Optional)</span>:
+    </label>
+    <div class="location-input-group">
+      <input
+        type="text"
+        id="city-input"
+        name="city"
+        placeholder="e.g. Mumbai, Delhi, Bengaluru, London..."
+        autocomplete="off"
+      />
+      <button type="button" id="detect-loc-btn" class="detect-btn" title="Auto-detect current location">
+        <i class="fas fa-location-arrow"></i> <span>Detect</span>
+      </button>
+      <input type="hidden" id="lat-input" name="latitude" />
+      <input type="hidden" id="lon-input" name="longitude" />
+    </div>
+    <!-- Live weather preview chip -->
+    <div id="live-weather-preview" class="live-weather-preview" style="display: none;">
+      <span class="preview-icon" id="preview-weather-icon">🌤️</span>
+      <span class="preview-text" id="preview-weather-text">Detecting weather...</span>
+    </div>
   </div>
 
   <!-- Age -->
@@ -231,6 +276,26 @@
         </div>
       </div>
 
+      <!-- WEATHER-BASED CLIMATE STYLING CARD -->
+      <div class="weather-card" id="weather-card" style="display: none;">
+        <div class="weather-card-content">
+          <div class="weather-main-badge">
+            <span class="weather-icon-large" id="res-weather-icon">🌤️</span>
+            <div class="weather-meta">
+              <span class="weather-location" id="res-weather-location">Local Climate</span>
+              <div class="weather-temp-row">
+                <span class="weather-temp" id="res-weather-temp">--°C</span>
+                <span class="weather-condition-tag" id="res-weather-cond">Pleasant</span>
+              </div>
+            </div>
+          </div>
+          <div class="weather-advice-box">
+            <span class="analysis-label"><i class="fas fa-temperature-high"></i> Climate & Fabric Directive</span>
+            <p id="res-weather-fabric">Fabric recommendations calibrated for your current weather.</p>
+          </div>
+        </div>
+      </div>
+
       <!-- 3-LOOKS TAB BAR -->
       <div class="looks-tab-container">
         <span class="analysis-label">Curated Looks Collection (Select to Switch)</span>
@@ -260,6 +325,676 @@
       <button id="try-again" class="btn secondary" style="margin-top: 30px;">Try Another Photo</button>
     </div>
   </div>
+  </div><!-- /#stylist-section -->
+
+  <!-- ================= A/B FIT DUEL SECTION ================= -->
+  <div id="duel-section" class="studio-section" style="display: none;">
+    <div class="container">
+      <div class="duel-header-box">
+        <span class="vibe-badge"><i class="fas fa-fire"></i> Head-to-Head Showdown</span>
+        <h2>A/B Fit Duel</h2>
+        <p class="subtitle">Upload two competing outfits. AI evaluates color harmony, silhouette balance, and occasion readiness to crown the winner.</p>
+      </div>
+
+      <form id="duel-form" class="duel-form" enctype="multipart/form-data">
+        <div class="duel-arena">
+          <!-- FIT A DROP ZONE -->
+          <div class="duel-fighter-card" id="card-fit-a">
+            <div class="fighter-tag tag-a"><i class="fas fa-bolt"></i> Outfit A</div>
+            <div class="drop-zone duel-drop-zone" id="drop-zone-a">
+              <input type="file" id="file-input-a" name="image_a" accept="image/*" hidden required>
+              <div class="drop-content" id="drop-content-a">
+                <i class="fas fa-tshirt drop-icon"></i>
+                <p>Drag & drop <b>Fit A</b> or <span>Browse</span></p>
+                <small>Full fit photo or mirror selfie</small>
+              </div>
+              <img id="preview-a" class="duel-img-preview" alt="Fit A Preview" style="display:none;">
+            </div>
+            <input type="text" id="notes-a" name="notes_a" class="duel-note-input" placeholder="e.g. Navy knit polo + white trousers (optional)">
+          </div>
+
+          <!-- VS EMBLEM -->
+          <div class="duel-vs-divider">
+            <div class="vs-circle">VS</div>
+          </div>
+
+          <!-- FIT B DROP ZONE -->
+          <div class="duel-fighter-card" id="card-fit-b">
+            <div class="fighter-tag tag-b"><i class="fas fa-bolt"></i> Outfit B</div>
+            <div class="drop-zone duel-drop-zone" id="drop-zone-b">
+              <input type="file" id="file-input-b" name="image_b" accept="image/*" hidden required>
+              <div class="drop-content" id="drop-content-b">
+                <i class="fas fa-tshirt drop-icon"></i>
+                <p>Drag & drop <b>Fit B</b> or <span>Browse</span></p>
+                <small>Full fit photo or mirror selfie</small>
+              </div>
+              <img id="preview-b" class="duel-img-preview" alt="Fit B Preview" style="display:none;">
+            </div>
+            <input type="text" id="notes-b" name="notes_b" class="duel-note-input" placeholder="e.g. Rust linen overshirt + black jeans (optional)">
+          </div>
+        </div>
+
+        <!-- DUEL CONTROLS -->
+        <div class="duel-controls-row">
+          <div class="duel-input-item">
+            <label for="duel-gender-select">Gender:</label>
+            <select id="duel-gender-select" name="gender">
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Prefer not to say">Prefer not to say</option>
+            </select>
+          </div>
+
+          <div class="duel-input-item">
+            <label for="duel-occasion-select">Battle Occasion:</label>
+            <select id="duel-occasion-select" name="occasion" required>
+              <option value="Date Night">Date Night</option>
+              <option value="Casual / Everyday">Casual / Everyday</option>
+              <option value="College / Campus">College / Campus</option>
+              <option value="Office / Interview">Office / Interview</option>
+              <option value="Party / Night Out">Party / Night Out</option>
+              <option value="Wedding / Festive">Wedding / Festive</option>
+            </select>
+          </div>
+
+          <div class="duel-input-item">
+            <label for="duel-city-input">City / Climate (Optional):</label>
+            <input type="text" id="duel-city-input" name="city" placeholder="e.g. Mumbai, Delhi">
+          </div>
+        </div>
+
+        <button type="submit" class="btn primary duel-submit-btn">
+          <i class="fas fa-trophy"></i> Judge Outfits & Pick Winner
+        </button>
+      </form>
+
+      <!-- DUEL LOADING -->
+      <div id="duel-loading" class="loading" style="display:none;">
+        <div class="spinner"></div>
+        <p>Analyzing color harmony, silhouettes, and lighting balance... Deciding the champion!</p>
+      </div>
+
+      <!-- DUEL RESULTS CONTAINER -->
+      <div id="duel-results" class="duel-results-wrap" style="display:none;">
+        <!-- GRAND WINNER BANNER -->
+        <div class="winner-crown-banner">
+          <div class="crown-icon">👑</div>
+          <span class="winner-badge-label">The Champion Look</span>
+          <h2 id="winner-announcement">Winner: Outfit A</h2>
+          <p id="winner-headline" class="winner-headline"></p>
+        </div>
+
+        <!-- COMPARATIVE SCORECARDS GRID -->
+        <div class="duel-scorecards-grid">
+          <!-- CARD A -->
+          <div class="scorecard" id="scorecard-a">
+            <div class="scorecard-header">
+              <span class="card-tag tag-a">Outfit A</span>
+              <h3 id="res-title-a">Fit A</h3>
+              <div class="overall-score-pill" id="res-score-a">8.5/10</div>
+            </div>
+
+            <div class="score-meters">
+              <div class="meter-row">
+                <span>Color Harmony</span>
+                <div class="meter-bar"><div class="meter-fill" id="meter-harmony-a" style="width: 85%;"></div></div>
+                <small id="meter-val-harmony-a">8.5</small>
+              </div>
+              <div class="meter-row">
+                <span>Occasion Match</span>
+                <div class="meter-bar"><div class="meter-fill" id="meter-occasion-a" style="width: 80%;"></div></div>
+                <small id="meter-val-occasion-a">8.0</small>
+              </div>
+              <div class="meter-row">
+                <span>Versatility</span>
+                <div class="meter-bar"><div class="meter-fill" id="meter-versatility-a" style="width: 80%;"></div></div>
+                <small id="meter-val-versatility-a">8.0</small>
+              </div>
+            </div>
+
+            <div class="detected-palette-row">
+              <span class="analysis-label">Extracted Palette</span>
+              <div id="palette-chips-a" class="mini-palette-chips"></div>
+            </div>
+
+            <p class="scorecard-summary" id="res-summary-a"></p>
+
+            <div class="pros-cons-box">
+              <div class="pros-col">
+                <h5><i class="fas fa-check-circle text-green"></i> Strong Points</h5>
+                <ul id="pros-list-a"></ul>
+              </div>
+              <div class="cons-col">
+                <h5><i class="fas fa-exclamation-triangle text-amber"></i> Minor Flaws</h5>
+                <ul id="cons-list-a"></ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD B -->
+          <div class="scorecard" id="scorecard-b">
+            <div class="scorecard-header">
+              <span class="card-tag tag-b">Outfit B</span>
+              <h3 id="res-title-b">Fit B</h3>
+              <div class="overall-score-pill" id="res-score-b">7.8/10</div>
+            </div>
+
+            <div class="score-meters">
+              <div class="meter-row">
+                <span>Color Harmony</span>
+                <div class="meter-bar"><div class="meter-fill" id="meter-harmony-b" style="width: 78%;"></div></div>
+                <small id="meter-val-harmony-b">7.8</small>
+              </div>
+              <div class="meter-row">
+                <span>Occasion Match</span>
+                <div class="meter-bar"><div class="meter-fill" id="meter-occasion-b" style="width: 75%;"></div></div>
+                <small id="meter-val-occasion-b">7.5</small>
+              </div>
+              <div class="meter-row">
+                <span>Versatility</span>
+                <div class="meter-bar"><div class="meter-fill" id="meter-versatility-b" style="width: 78%;"></div></div>
+                <small id="meter-val-versatility-b">7.8</small>
+              </div>
+            </div>
+
+            <div class="detected-palette-row">
+              <span class="analysis-label">Extracted Palette</span>
+              <div id="palette-chips-b" class="mini-palette-chips"></div>
+            </div>
+
+            <p class="scorecard-summary" id="res-summary-b"></p>
+
+            <div class="pros-cons-box">
+              <div class="pros-col">
+                <h5><i class="fas fa-check-circle text-green"></i> Strong Points</h5>
+                <ul id="pros-list-b"></ul>
+              </div>
+              <div class="cons-col">
+                <h5><i class="fas fa-exclamation-triangle text-amber"></i> Minor Flaws</h5>
+                <ul id="cons-list-b"></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STYLIST VERDICT BOX -->
+        <div class="duel-verdict-card">
+          <div class="verdict-icon"><i class="fas fa-gavel"></i></div>
+          <div class="verdict-content">
+            <h4>Stylist's Breakdown & Verdict</h4>
+            <p id="duel-verdict-text"></p>
+          </div>
+        </div>
+
+        <!-- QUICK UPGRADES -->
+        <div class="quick-upgrades-card">
+          <h4><i class="fas fa-magic"></i> Runway Polish & Quick Fixes</h4>
+          <ul id="quick-upgrades-list"></ul>
+        </div>
+
+        <!-- VIRAL SOCIAL SHARING CARD -->
+        <div class="duel-share-card">
+          <div class="duel-share-header">
+            <div class="share-badge"><i class="fas fa-fire-alt"></i> Viral Social Share</div>
+            <h3>Share Your Battle to Instagram & Socials!</h3>
+            <p>Download your custom AI Battle Card, post it to your Instagram Story or WhatsApp Status, and challenge your friends to beat your score.</p>
+          </div>
+
+          <div class="duel-share-actions">
+            <!-- Download Story Card Button -->
+            <button type="button" id="btn-download-story" class="btn-share-primary">
+              <i class="fab fa-instagram"></i> <span>Download Instagram Story Card</span>
+            </button>
+
+            <!-- Native Share / Preview Modal Button -->
+            <button type="button" id="btn-open-share-modal" class="btn-share-secondary">
+              <i class="fas fa-share-alt"></i> <span>Preview & Share Card</span>
+            </button>
+
+            <!-- Quick WhatsApp Button -->
+            <button type="button" id="btn-share-whatsapp" class="btn-share-social whatsapp" title="Share on WhatsApp">
+              <i class="fab fa-whatsapp"></i> <span>WhatsApp</span>
+            </button>
+
+            <!-- Quick Twitter / X Button -->
+            <button type="button" id="btn-share-twitter" class="btn-share-social twitter" title="Share on X">
+              <i class="fab fa-x-twitter"></i> <span>X / Twitter</span>
+            </button>
+
+            <!-- Quick Copy Link Button -->
+            <button type="button" id="btn-copy-duel-link" class="btn-share-social copy" title="Copy share caption">
+              <i class="fas fa-copy"></i> <span>Copy Caption</span>
+            </button>
+          </div>
+
+          <!-- Toast Alert for Copy -->
+          <div id="duel-share-toast" class="duel-share-toast" style="display: none;">
+            <i class="fas fa-check-circle"></i> Caption & Link copied to clipboard! Ready to paste on Instagram or WhatsApp.
+          </div>
+        </div>
+
+        <!-- Hidden Canvas for generating story card -->
+        <canvas id="duel-story-canvas" width="1080" height="1920" style="display: none;"></canvas>
+
+        <!-- Social Share Preview Modal -->
+        <div id="duel-share-modal" class="duel-share-modal" style="display: none;">
+          <div class="modal-backdrop" id="modal-backdrop"></div>
+          <div class="modal-dialog">
+            <div class="modal-header">
+              <h4><i class="fab fa-instagram"></i> Your Instagram Story Battle Card</h4>
+              <button type="button" id="btn-close-modal" class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+              <div class="story-preview-wrapper">
+                <img id="modal-story-preview" class="story-preview-img" alt="Story Preview">
+              </div>
+              <div class="modal-caption-box">
+                <label for="share-caption-text">Suggested Viral Caption:</label>
+                <div class="caption-input-group">
+                  <textarea id="share-caption-text" readonly rows="3"></textarea>
+                  <button type="button" id="btn-modal-copy-caption" class="btn-copy-small">Copy</button>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" id="btn-modal-download" class="btn primary">
+                <i class="fas fa-download"></i> Download Story Card (PNG)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" id="duel-try-again" class="btn secondary" style="margin-top: 30px;">
+          <i class="fas fa-redo"></i> Battle Another Set of Outfits
+        </button>
+      </div>
+
+    </div>
+  </div><!-- /#duel-section -->
+
+  <!-- ================= CELEBRITY & AESTHETIC DUPE FINDER SECTION ================= -->
+  <div id="dupe-section" class="studio-section" style="display: none;">
+    <div class="container">
+      <div class="dupe-header-box">
+        <span class="dupe-badge-pill"><i class="fas fa-crown"></i> High Fashion on a Real Budget</span>
+        <h2>Steal the Look: Celebrity & Aesthetic Dupe Finder</h2>
+        <p class="subtitle">Upload any celebrity red-carpet photo, Pinterest aesthetic fit, or Instagram screenshot. StyleAI decodes the look and sources ₹50,000+ luxury looks for under ₹1,500 – ₹3,500 across Myntra, Ajio, Amazon India & Flipkart.</p>
+      </div>
+
+      <form id="dupe-form" class="dupe-form-card" enctype="multipart/form-data">
+        <!-- INSPIRATION PHOTO UPLOAD ZONE -->
+        <div class="dupe-upload-zone" id="dupe-drop-zone">
+          <input type="file" id="dupe-file-input" name="image" accept="image/*" required style="display: none;">
+          <div class="dupe-drop-prompt" id="dupe-drop-prompt">
+            <div class="dupe-icon-ring"><i class="fas fa-cloud-upload-alt"></i></div>
+            <h4>Drop Celebrity / Inspo Photo Here</h4>
+            <p>or <span class="browse-link">browse files</span> from your device (PNG, JPG, WEBP)</p>
+            <span class="file-hint">Screenshot from Instagram, Pinterest, or celebrity paparazzi look</span>
+          </div>
+          <div class="dupe-preview-wrap" id="dupe-preview-wrap" style="display: none;">
+            <img id="dupe-img-preview" src="" alt="Inspo Preview">
+            <button type="button" id="btn-remove-dupe-img" class="btn-remove-preview" title="Remove image">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- AESTHETIC PRESET CHIPS & OPTIONS -->
+        <div class="dupe-options-grid">
+          <div class="dupe-input-group full-width">
+            <label>Trending Aesthetic Presets (Click to auto-fill):</label>
+            <div class="aesthetic-preset-chips" id="aesthetic-preset-chips">
+              <button type="button" class="preset-chip" data-aesthetic="Old Money / Quiet Luxury">🌟 Old Money / Quiet Luxury</button>
+              <button type="button" class="preset-chip" data-aesthetic="Korean Oversized Streetwear">🔥 Korean Streetwear</button>
+              <button type="button" class="preset-chip" data-aesthetic="Minimalist Casual Chic">✨ Minimalist Chic</button>
+              <button type="button" class="preset-chip" data-aesthetic="Casual Linen Resort">🏖️ Linen Resort</button>
+              <button type="button" class="preset-chip" data-aesthetic="Bollywood Sangeet & Festive">🎉 Bollywood Festive</button>
+              <button type="button" class="preset-chip" data-aesthetic="Y2K Pop Retro">⚡ Y2K Retro</button>
+            </div>
+          </div>
+
+          <div class="dupe-input-group">
+            <label for="dupe-aesthetic-input">Aesthetic / Celebrity Name (Optional):</label>
+            <input type="text" id="dupe-aesthetic-input" name="aesthetic" placeholder="e.g. Ranbir Kapoor Airport Fit, Quiet Luxury">
+          </div>
+
+          <div class="dupe-input-group">
+            <label for="dupe-budget-select">Target Dupe Budget:</label>
+            <select id="dupe-budget-select" name="budget_tier">
+              <option value="Ultra Budget (Under ₹1,500)">Ultra Budget (Under ₹1,500)</option>
+              <option value="Smart Mid-Tier (₹1,500 - ₹3,500)" selected>Smart Mid-Tier (₹1,500 - ₹3,500)</option>
+              <option value="Premium Dupe (₹3,500 - ₹6,000)">Premium Dupe (₹3,500 - ₹6,000)</option>
+            </select>
+          </div>
+
+          <div class="dupe-input-group">
+            <label for="dupe-gender-select">Style Preference:</label>
+            <select id="dupe-gender-select" name="gender">
+              <option value="Unisex" selected>Universal / Unisex</option>
+              <option value="Men">Men's Styling</option>
+              <option value="Women">Women's Styling</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn primary dupe-submit-btn" id="dupe-submit-btn">
+          <i class="fas fa-search-dollar"></i> Deconstruct Look & Find Dupes
+        </button>
+      </form>
+
+      <!-- DUPE LOADING STATE -->
+      <div id="dupe-loading" class="loading" style="display: none;">
+        <div class="spinner"></div>
+        <p>Deconstructing silhouettes, textures, and color harmony...</p>
+        <span class="loading-subtext">Scouting budget-friendly alternatives on Myntra, Ajio, Amazon & Flipkart...</span>
+      </div>
+
+      <!-- DUPE RESULTS CONTAINER -->
+      <div id="dupe-results" class="dupe-results-wrap" style="display: none;">
+        <!-- HERO BANNER: INSPO VS DUPE SAVINGS -->
+        <div class="dupe-hero-banner">
+          <div class="dupe-hero-inspo">
+            <div class="dupe-inspo-thumb-wrap">
+              <img id="dupe-inspo-thumb" src="" alt="Original Look">
+              <span class="inspo-thumb-tag">Inspiration Look</span>
+            </div>
+            <div class="dupe-inspo-details">
+              <span class="dupe-aesthetic-tag" id="res-aesthetic-name">Old Money Quiet Luxury</span>
+              <h3 id="res-celebrity-match">Inspired by Celebrity Runway Style</h3>
+              <p id="res-vibe-desc" class="res-vibe-desc"></p>
+              <div class="dupe-palette-container">
+                <span class="palette-label">Decoded Palette:</span>
+                <div class="dupe-palette-dots" id="dupe-palette-dots"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dupe-hero-savings">
+            <div class="price-comparison-box">
+              <div class="price-row original">
+                <span class="label">Designer Est.:</span>
+                <span class="value strikethrough" id="res-orig-price">₹65,000</span>
+              </div>
+              <div class="price-row dupe">
+                <span class="label">StyleAI Dupe:</span>
+                <span class="value highlight" id="res-dupe-price">₹2,499</span>
+              </div>
+              <div class="savings-badge" id="res-savings-badge">
+                <i class="fas fa-fire"></i> SAVE 96%
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PIECES BREAKDOWN HEADING -->
+        <div class="dupe-section-heading">
+          <h3><i class="fas fa-tshirt"></i> Deconstructed Outfit Pieces & Direct Dupes</h3>
+          <p>Every piece recreated with affordable Indian e-commerce links without sacrificing aesthetics.</p>
+        </div>
+
+        <!-- PIECES GRID -->
+        <div class="dupe-pieces-grid" id="dupe-pieces-grid"></div>
+
+        <!-- STYLING MASTERCLASS CARD -->
+        <div class="dupe-secrets-card">
+          <div class="secrets-header">
+            <div class="secrets-icon"><i class="fas fa-sparkles"></i></div>
+            <div>
+              <h4>Stylist's "Make It Look Expensive" Rules</h4>
+              <p>How to make a ₹2,500 dupe look indistinguishable from a ₹50,000 designer outfit.</p>
+            </div>
+          </div>
+          <ul id="dupe-secrets-list" class="dupe-secrets-list"></ul>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="dupe-actions-bar">
+          <button type="button" id="btn-copy-dupe-list" class="btn secondary">
+            <i class="fas fa-copy"></i> <span>Copy Full Dupe Shopping List</span>
+          </button>
+          <button type="button" id="btn-dupe-another" class="btn primary">
+            <i class="fas fa-redo"></i> <span>Deconstruct Another Look</span>
+          </button>
+        </div>
+
+        <!-- COPY TOAST -->
+        <div id="dupe-copy-toast" class="dupe-copy-toast" style="display: none;">
+          <i class="fas fa-check-circle"></i> Dupe Shopping List & Links copied to clipboard!
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /#dupe-section -->
+
+  <!-- ================= SMART TRAVEL CAPSULE WARDROBE SECTION ================= -->
+  <div id="capsule-section" class="studio-section" style="display: none;">
+    <div class="container">
+      <div class="capsule-header-box">
+        <span class="capsule-badge-pill"><i class="fas fa-plane-departure"></i> Minimalist Jetsetter Engine</span>
+        <h2>Smart Travel Capsule Wardrobe Generator</h2>
+        <p class="subtitle">Pack light, never repeat a silhouette, and eliminate baggage overage fees. StyleAI pulls real-time destination climate to engineer a 6–8 piece mix-and-match capsule yielding 10+ distinct day-to-night outfits for your trip.</p>
+      </div>
+
+      <form id="capsule-form" class="capsule-form-card">
+        <div class="capsule-form-grid">
+          <!-- DESTINATION INPUT & LIVE WEATHER BADGE -->
+          <div class="capsule-input-group full-width">
+            <label for="capsule-destination-input">
+              <i class="fas fa-map-marker-alt text-primary"></i> Destination City:
+            </label>
+            <div class="destination-input-wrapper">
+              <input type="text" id="capsule-destination-input" name="destination" placeholder="e.g. Goa, Manali, Paris, Tokyo, Mumbai, London" value="Goa, India" required autocomplete="off">
+              <button type="button" id="btn-capsule-check-weather" class="btn-check-weather" title="Fetch live climate for this city">
+                <i class="fas fa-cloud-sun"></i> Check Weather
+              </button>
+            </div>
+            <!-- Live Destination Weather Preview Card -->
+            <div id="capsule-dest-weather" class="dest-weather-preview" style="display: none;">
+              <span id="dest-weather-icon" class="dest-weather-icon">🌤️</span>
+              <div class="dest-weather-info">
+                <strong id="dest-weather-city">Goa, India</strong>
+                <span id="dest-weather-temp">29°C</span> &bull; <span id="dest-weather-cond">Sunny & Humid</span>
+              </div>
+              <div id="dest-weather-fabric" class="dest-weather-fabric">
+                Linen, seersucker, and lightweight cottons recommended.
+              </div>
+            </div>
+          </div>
+
+          <!-- TRIP DURATION SELECTOR -->
+          <div class="capsule-input-group">
+            <label for="capsule-duration-select"><i class="fas fa-calendar-alt text-primary"></i> Trip Duration:</label>
+            <select id="capsule-duration-select" name="duration" required>
+              <option value="3">3 Days (Weekend Trip)</option>
+              <option value="5" selected>5 Days (Standard Getaway)</option>
+              <option value="7">7 Days (Week Vacation)</option>
+              <option value="10">10 Days (Extended Holiday)</option>
+            </select>
+          </div>
+
+          <!-- GENDER STYLE PREFERENCE -->
+          <div class="capsule-input-group">
+            <label for="capsule-gender-select"><i class="fas fa-user text-primary"></i> Style Preference:</label>
+            <select id="capsule-gender-select" name="gender">
+              <option value="Unisex" selected>Universal / Unisex</option>
+              <option value="Men">Men's Wardrobe</option>
+              <option value="Women">Women's Wardrobe</option>
+            </select>
+          </div>
+
+          <!-- LUGGAGE LIMIT TOGGLE -->
+          <div class="capsule-input-group">
+            <label for="capsule-luggage-select"><i class="fas fa-suitcase text-primary"></i> Luggage Constraint:</label>
+            <select id="capsule-luggage-select" name="luggage">
+              <option value="Carry-On Only (≤ 7kg)" selected>🎒 Carry-On Trolley Only (≤ 7kg - No Checked Bag)</option>
+              <option value="Checked Suitcase (≤ 20kg)">🧳 Checked Baggage (Standard Allowance)</option>
+              <option value="Ultralight Weekender Backpack (≤ 5kg)">⚡ Ultralight Backpack Only (≤ 5kg)</option>
+            </select>
+          </div>
+
+          <!-- TRIP VIBE & PURPOSE PRESETS -->
+          <div class="capsule-input-group full-width">
+            <label><i class="fas fa-compass text-primary"></i> Trip Vibe / Purpose (Click to choose):</label>
+            <input type="hidden" id="capsule-vibe-input" name="vibe" value="Beach & Coastal Resort">
+            <div class="vibe-preset-chips" id="capsule-vibe-chips">
+              <button type="button" class="vibe-chip active" data-vibe="Beach & Coastal Resort">🏖️ Beach & Resort</button>
+              <button type="button" class="vibe-chip" data-vibe="Mountain & Winter Chill">🏔️ Mountain & Chill</button>
+              <button type="button" class="vibe-chip" data-vibe="Urban City Exploration & Sightseeing">🏙️ City Sightseeing</button>
+              <button type="button" class="vibe-chip" data-vibe="Business Trip & Conference">💼 Business & Work</button>
+              <button type="button" class="vibe-chip" data-vibe="Nightlife, Bars & Clubbing">🎉 Nightlife & Dining</button>
+              <button type="button" class="vibe-chip" data-vibe="Destination Wedding & Festive">✨ Wedding Guest</button>
+            </div>
+          </div>
+
+          <!-- USER SPECIAL REQUESTS / NOTES -->
+          <div class="capsule-input-group full-width">
+            <label for="capsule-notes-input"><i class="fas fa-pencil-alt text-primary"></i> Specific Packing Preferences (Optional):</label>
+            <input type="text" id="capsule-notes-input" name="notes" placeholder="e.g. Include 1 formal dinner layer, focus on walking sneakers, avoid shorts">
+          </div>
+        </div>
+
+        <button type="submit" class="btn primary capsule-submit-btn" id="capsule-submit-btn">
+          <i class="fas fa-suitcase-rolling"></i> Engineer Travel Capsule & Outfit Matrix
+        </button>
+      </form>
+
+      <!-- CAPSULE LOADING STATE -->
+      <div id="capsule-loading" class="loading" style="display: none;">
+        <div class="spinner"></div>
+        <p>Scanning destination climate & atmospheric conditions...</p>
+        <span class="loading-subtext">Building mix-and-match matrix, calculating baggage weight, and sourcing pieces on Myntra & Amazon...</span>
+      </div>
+
+      <!-- CAPSULE RESULTS CONTAINER -->
+      <div id="capsule-results" class="capsule-results-wrap" style="display: none;">
+        <!-- HERO TRIP & CLIMATE CARD -->
+        <div class="capsule-hero-banner">
+          <div class="capsule-hero-left">
+            <div class="destination-flag-badge">
+              <i class="fas fa-map-marked-alt"></i> Destination Capsule
+            </div>
+            <h2 id="res-capsule-destination">Goa, India</h2>
+            <div class="capsule-meta-tags">
+              <span class="meta-tag climate-tag" id="res-capsule-climate">
+                <span id="res-capsule-icon">🌤️</span> <span id="res-capsule-temp">29°C</span> &bull; <span id="res-capsule-cond">Sunny</span>
+              </span>
+              <span class="meta-tag formula-tag" id="res-capsule-formula">
+                <i class="fas fa-cube"></i> 7 Pieces ➡️ 10 Outfits
+              </span>
+              <span class="meta-tag luggage-tag" id="res-capsule-weight">
+                <i class="fas fa-weight-hanging"></i> 5.6 kg (Carry-On Safe)
+              </span>
+            </div>
+            <p id="res-capsule-summary" class="capsule-summary-text"></p>
+          </div>
+
+          <div class="capsule-transit-box">
+            <div class="transit-icon"><i class="fas fa-plane"></i></div>
+            <div class="transit-content">
+              <h4>Airport Transit Smart Outfit</h4>
+              <p id="res-capsule-transit"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- CAPSULE VIEW MODE TABS -->
+        <div class="capsule-tabs-nav">
+          <button type="button" class="capsule-tab-nav-btn active" data-target="tab-core-pieces">
+            <i class="fas fa-tshirt"></i> <span>Core Wardrobe Pieces</span>
+          </button>
+          <button type="button" class="capsule-tab-nav-btn" data-target="tab-itinerary-matrix">
+            <i class="fas fa-calendar-check"></i> <span>Day-by-Day Outfit Matrix</span>
+          </button>
+          <button type="button" class="capsule-tab-nav-btn" data-target="tab-packing-checklist">
+            <i class="fas fa-tasks"></i> <span>Interactive Packing Checklist</span>
+          </button>
+          <button type="button" class="capsule-tab-nav-btn" data-target="tab-packing-hacks">
+            <i class="fas fa-lightbulb"></i> <span>Jetsetter Pro Hacks</span>
+          </button>
+        </div>
+
+        <!-- TAB 1: CORE PIECES & DUPES -->
+        <div id="tab-core-pieces" class="capsule-tab-content active">
+          <div class="capsule-section-heading">
+            <h3><i class="fas fa-layer-group"></i> Minimalist Capsule Building Blocks</h3>
+            <p>Every piece is chosen for high versatility, fast-drying fabrics, and color cohesion across the entire trip.</p>
+          </div>
+          <div class="capsule-pieces-grid" id="capsule-pieces-grid"></div>
+        </div>
+
+        <!-- TAB 2: DAY-BY-DAY OUTFIT MATRIX -->
+        <div id="tab-itinerary-matrix" class="capsule-tab-content" style="display: none;">
+          <div class="capsule-section-heading">
+            <h3><i class="fas fa-history"></i> Day-to-Night Itinerary Matrix</h3>
+            <p>See exactly what to wear for sightseeing during the day, and how to execute a fast 2-minute transition for dinner.</p>
+          </div>
+          <div class="itinerary-matrix-grid" id="itinerary-matrix-grid"></div>
+        </div>
+
+        <!-- TAB 3: SMART PACKING CHECKLIST -->
+        <div id="tab-packing-checklist" class="capsule-tab-content" style="display: none;">
+          <div class="capsule-section-heading">
+            <h3><i class="fas fa-clipboard-check"></i> Interactive Smart Packing Checklist</h3>
+            <p>Tick off items as you pack into your suitcase. Nothing essential gets left behind!</p>
+          </div>
+          <div class="checklist-grid">
+            <div class="checklist-card">
+              <div class="checklist-card-header">
+                <i class="fas fa-tshirt text-primary"></i> <h4>Wardrobe Pieces</h4>
+              </div>
+              <ul class="checklist-ul" id="checklist-clothing"></ul>
+            </div>
+            <div class="checklist-card">
+              <div class="checklist-card-header">
+                <i class="fas fa-pump-soap text-primary"></i> <h4>Toiletries & Grooming</h4>
+              </div>
+              <ul class="checklist-ul" id="checklist-toiletries"></ul>
+            </div>
+            <div class="checklist-card">
+              <div class="checklist-card-header">
+                <i class="fas fa-plug text-primary"></i> <h4>Tech & Travel Gear</h4>
+              </div>
+              <ul class="checklist-ul" id="checklist-tech"></ul>
+            </div>
+            <div class="checklist-card">
+              <div class="checklist-card-header">
+                <i class="fas fa-shield-alt text-primary"></i> <h4>Climate & Emergency</h4>
+              </div>
+              <ul class="checklist-ul" id="checklist-climate"></ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 4: JETSETTER HACKS -->
+        <div id="tab-packing-hacks" class="capsule-tab-content" style="display: none;">
+          <div class="capsule-section-heading">
+            <h3><i class="fas fa-sparkles"></i> Masterclass Jetsetter Packing Secrets</h3>
+            <p>Techniques used by seasoned global travelers to travel light without creased garments.</p>
+          </div>
+          <div class="hacks-cards-grid" id="capsule-hacks-grid"></div>
+        </div>
+
+        <!-- CAPSULE ACTIONS BAR -->
+        <div class="capsule-actions-bar">
+          <button type="button" id="btn-copy-capsule" class="btn secondary">
+            <i class="fas fa-copy"></i> <span>Copy Travel Packing Plan</span>
+          </button>
+          <button type="button" id="btn-capsule-print" class="btn secondary">
+            <i class="fas fa-print"></i> <span>Print / Save as PDF</span>
+          </button>
+          <button type="button" id="btn-capsule-another" class="btn primary">
+            <i class="fas fa-redo"></i> <span>Plan Another Trip</span>
+          </button>
+        </div>
+
+        <!-- COPY TOAST -->
+        <div id="capsule-copy-toast" class="capsule-copy-toast" style="display: none;">
+          <i class="fas fa-check-circle"></i> Complete Travel Capsule & Packing List copied to clipboard!
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /#capsule-section -->
 
   <h2 class="section-title">
     Speaks the language of fashion <i>fluently</i>
@@ -364,6 +1099,50 @@ This project reflects our curiosity, teamwork, and eagerness to learn by buildin
   </div>
 </section>
 
+<!-- ================= FLOATING AI STYLIST CHATBOT ================= -->
+<div class="chatbot-wrapper">
+  <!-- Trigger Button -->
+  <button id="chatbot-toggle-btn" class="chatbot-floating-btn" title="Ask Personal AI Stylist">
+    <i class="fas fa-comment-dots"></i>
+    <span>Ask StyleAI</span>
+  </button>
+
+  <!-- Slide-Up Drawer -->
+  <div id="chatbot-drawer" class="chatbot-drawer" style="display: none;">
+    <div class="chatbot-header">
+      <div class="stylist-badge">
+        <div class="stylist-avatar"><i class="fas fa-user-tie"></i></div>
+        <div>
+          <h4>StyleAI Consultant</h4>
+          <span class="online-indicator"><span class="dot"></span> Online Stylist</span>
+        </div>
+      </div>
+      <button type="button" id="chatbot-close-btn" class="chatbot-close-btn" title="Minimize"><i class="fas fa-times"></i></button>
+    </div>
+
+    <!-- Quick prompt chips -->
+    <div class="quick-prompt-chips">
+      <button type="button" class="chip-btn" data-prompt="What jacket goes best with Look 1?">Jacket for Look 1?</button>
+      <button type="button" class="chip-btn" data-prompt="Can I wear gold jewelry with cool undertones?">Gold with cool tones?</button>
+      <button type="button" class="chip-btn" data-prompt="Suggest a great budget perfume for date night">Date night perfume?</button>
+      <button type="button" class="chip-btn" data-prompt="How do I dress if it rains today?">Rain styling tip?</button>
+    </div>
+
+    <!-- Chat Messages Log -->
+    <div id="chatbot-messages" class="chatbot-messages">
+      <div class="chat-bubble ai-bubble">
+        <p>👋 Hello! I'm your StyleAI image consultant. Ask me anything about color matching, accessories, styling rules, or layering for your climate!</p>
+      </div>
+    </div>
+
+    <!-- Chat Input Form -->
+    <form id="chatbot-form" class="chatbot-form">
+      <input type="text" id="chatbot-input" placeholder="Ask about colors, fits, footwear..." autocomplete="off" required>
+      <button type="submit" id="chatbot-send-btn" class="chatbot-send-btn"><i class="fas fa-paper-plane"></i></button>
+    </form>
+  </div>
+</div>
+
 <!-- ================= FINAL FOOTER ================= -->
 <footer class="final-footer">
   <div class="container">
@@ -377,7 +1156,7 @@ This project reflects our curiosity, teamwork, and eagerness to learn by buildin
 </footer>
 
 <!-- JS -->
-<script src="logic.js?v=3"></script>
+<script src="logic.js?v=9"></script>
 <script>
   function updateAge(value) {
     document.getElementById("ageValue").innerText = value;
