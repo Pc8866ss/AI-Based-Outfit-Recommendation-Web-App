@@ -40,13 +40,6 @@
 
 ---
 
-## 📸 Screenshots
-
-> *(Add your screenshots here — very important for recruiters)*  
-
-- Upload Interface  
-- Recommendation Results  
-- Product Links Section  
 
 ---
 
